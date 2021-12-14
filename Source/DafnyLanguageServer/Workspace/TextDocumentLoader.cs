@@ -158,7 +158,8 @@ namespace Microsoft.Dafny.LanguageServer.Workspace {
         : CompilationStatus.VerificationFailed;
       notificationPublisher.SendStatusNotification(document.Text, compilationStatusAfterVerification);
       return document with {
-        SerializedCounterExamples = verificationResult.SerializedCounterExamples
+        SerializedCounterExamples = verificationResult.SerializedCounterExamples,
+        VerificationPass = true
       };
     }
 
