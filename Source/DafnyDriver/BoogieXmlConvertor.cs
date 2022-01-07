@@ -94,6 +94,13 @@ namespace Microsoft.Dafny {
         : new[] { TestResultForMethod(currentFileFragment, method) };
     }
 
+    private static string BoogieToDisplayName(string boogieName) {
+      return boogieName
+        .Replace("__default.", null)
+        .Replace("Impl$$", "Implementation correctness of ")
+        .Replace("CheckWellformed$$", "Well-formedness of ");
+    }
+
     private static TestResult TestResultForMethod(string currentFileFragment, XElement node) {
       var name = node.Attribute("name")!.Value;
       var startTime = node.Attribute("startTime")!.Value;
@@ -105,6 +112,7 @@ namespace Microsoft.Dafny {
       var outcome = conclusionNode.Attribute("outcome")!.Value;
 
       var testCase = TestCaseForEntry(currentFileFragment, name);
+      testCase.DisplayName = BoogieToDisplayName(name);
       var testResult = new TestResult(testCase) {
         StartTime = DateTimeOffset.Parse(startTime),
         Duration = TimeSpan.FromMilliseconds((long)(duration * 1000)),
@@ -134,6 +142,7 @@ namespace Microsoft.Dafny {
       var outcome = conclusionNode.Attribute("outcome")!.Value;
 
       var testCase = TestCaseForEntry(currentFileFragment, name);
+      testCase.DisplayName = BoogieToDisplayName(methodName) + $" (property {splitNumber})";
       var testResult = new TestResult(testCase) {
         StartTime = DateTimeOffset.Parse(startTime),
         Duration = TimeSpan.FromMilliseconds((long)(duration * 1000))
