@@ -142,7 +142,7 @@ namespace Microsoft.Dafny {
       var outcome = conclusionNode.Attribute("outcome")!.Value;
 
       var testCase = TestCaseForEntry(currentFileFragment, name);
-      testCase.DisplayName = BoogieToDisplayName(methodName) + $" (property {splitNumber})";
+      testCase.DisplayName = BoogieToDisplayName(methodName) + $" (split {splitNumber})";
       var testResult = new TestResult(testCase) {
         StartTime = DateTimeOffset.Parse(startTime),
         Duration = TimeSpan.FromMilliseconds((long)(duration * 1000))
