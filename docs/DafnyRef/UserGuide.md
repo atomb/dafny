@@ -294,15 +294,16 @@ TO BE WRITTEN
 
 TO BE WRITTEN
 
-### 24.10.4. Controlling aspects of the tool being run
+### 24.10.4. Controlling warnings
 
-* `-deprecation:<n>` - controls warnings about deprecated features
+* `-deprecation:<n>` - Controls warnings about deprecated features.
 
-   * 0 - no warnings
-   * 1 (default) - issue warnings
-   * 2 - issue warnings and advise about alternate syntax
+   * 0 - don't give any warnings about deprecated features
+   * 1 (default) - show warnings about deprecated features
+   * 2 - also point out where there's new simpler syntax
 
-* `-warnShadowing` - emits a warning if the name of a declared variable caused another variable to be shadowed
+* `-warnShadowing` - Emits a warning if the name of a declared variable caused another variable
+    to be shadowed.
 
 TO BE WRITTEN
 
