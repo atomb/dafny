@@ -252,6 +252,7 @@ NoGhost - disable printing of functions, ghost methods, and proof
       None,
       Externs,
       TestedExterns,
+      Everything
     }
 
     public PrintModes PrintMode = PrintModes.Everything; // Default to printing everything
@@ -766,6 +767,8 @@ NoGhost - disable printing of functions, ghost methods, and proof
               TestContracts = ContractTestingMode.Externs;
             } else if (args[ps.i].Equals("TestedExterns")) {
               TestContracts = ContractTestingMode.TestedExterns;
+            } else if (args[ps.i].Equals("Everything")) {
+              TestContracts = ContractTestingMode.Everything;
             } else {
               InvalidArgumentError(name, ps);
             }

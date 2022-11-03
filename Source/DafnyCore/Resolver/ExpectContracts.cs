@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Dafny.Compilers;
 
 namespace Microsoft.Dafny;
 
@@ -69,10 +70,28 @@ public class ExpectContracts : IRewriter {
     return new BlockStmt(callStmt.Tok, callStmt.EndTok, bodyStatements.ToList());
   }
 
-  private bool ShouldGenerateWrapper(MemberDecl decl) {
+  private static bool IsMainMethod(MemberDecl decl) {
+    return Attributes.Contains(decl.Attributes, "main") ||
+           decl.Name == SinglePassCompiler.DefaultNameMain ||
+           decl.FullDafnyName.Equals(DafnyOptions.O.MainMethod);
+  }
+
+  private static bool HasTestAttribute(MemberDecl decl) {
+    return decl.Attributes is not null && Attributes.Contains(decl.Attributes, "test");
+  }
+
+  private static bool HasExternAttribute(MemberDecl decl) {
+    return decl.Attributes is not null && Attributes.Contains(decl.Attributes, "extern");
+  }
+
+  private static bool WrapExternsOnly =>
+    DafnyOptions.O.TestContracts == DafnyOptions.ContractTestingMode.Externs ||
+    DafnyOptions.O.TestContracts == DafnyOptions.ContractTestingMode.TestedExterns;
+
+  private static bool ShouldGenerateWrapper(MemberDecl decl) {
     return !decl.IsGhost &&
-           decl is not Constructor &&
-           CallRedirector.HasExternAttribute(decl);
+           !IsMainMethod(decl) &&
+           (!WrapExternsOnly || HasExternAttribute(decl));
   }
 
   /// <summary>
@@ -187,18 +206,11 @@ public class ExpectContracts : IRewriter {
       newFullNames.Add(decl, fullName);
     }
 
-    internal static bool HasTestAttribute(MemberDecl decl) {
-      return decl.Attributes is not null && Attributes.Contains(decl.Attributes, "test");
-    }
-
-    internal static bool HasExternAttribute(MemberDecl decl) {
-      return decl.Attributes is not null && Attributes.Contains(decl.Attributes, "extern");
-    }
-
     private bool ShouldCallWrapper(MemberDecl caller, MemberDecl callee) {
-      if (!HasExternAttribute(callee)) {
+      if (!ShouldGenerateWrapper(callee)) {
         return false;
       }
+
       // If there's no wrapper for the callee, don't try to call it, but warn.
       if (!newRedirections.ContainsKey(callee)) {
         reporter.Warning(MessageSource.Rewriter, caller.tok, $"Internal: no wrapper for {callee.FullDafnyName}");
@@ -207,7 +219,7 @@ public class ExpectContracts : IRewriter {
 
       var opt = DafnyOptions.O.TestContracts;
       return ((HasTestAttribute(caller) && opt == DafnyOptions.ContractTestingMode.TestedExterns) ||
-              (opt == DafnyOptions.ContractTestingMode.Externs)) &&
+              (opt != DafnyOptions.ContractTestingMode.None)) &&
              // Skip if the caller is a wrapper, otherwise it'd just call itself recursively.
              !newRedirections.ContainsValue(caller);
     }
