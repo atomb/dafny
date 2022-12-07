@@ -108,7 +108,9 @@ public class ExpectContracts : IRewriter {
     var newName = decl.Name + "__dafny_checked";
     MemberDecl newDecl = null;
 
-    if (decl is Method origMethod) {
+    if (decl is Constructor) {
+      // TODO: Warn
+    } else if (decl is Method origMethod) {
       var newMethod = cloner.CloneMethod(origMethod);
       newMethod.Name = newName;
 
